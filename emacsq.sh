@@ -77,31 +77,33 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-${opt_emacs_bin:-emacs} -Q \
-                --debug-init \
-                --eval "(progn
-                          (require 'seq)
-                          (require 'subr-x)
-                          (setq user-emacs-directory
-                                (if (string-empty-p \"${opt_user_dir}\")
-                                    (car (seq-filter
-                                          #'file-exists-p
-                                          (list (format \"~/.emacs.d/%s/\" emacs-version)
-                                                (format \"~/.emacs.d/%s.%s/\" emacs-major-version emacs-minor-version)
-                                                \"~/.emacs.d/\")))
-                                  \"${opt_user_dir}\"))
-                          (setq package-user-dir
-                                (if (string-empty-p \"${opt_elpa_dir}\")
-                                    (expand-file-name \"elpa/\" user-emacs-directory)
-                                  \"${opt_elpa_dir}\"))
-                          (dolist (dir '(${opt_load_dirs[@]}))
-                            (add-to-list 'load-path (expand-file-name dir)))
-                          (package-initialize)
-                          (unless (string-empty-p \"${opt_load_pkgs}\")
-                            (dolist (pkg (split-string \"${opt_load_pkgs}\" \",\"))
-                              (require (intern pkg))))
-                          (unless (string-empty-p \"${opt_enable_modes}\")
-                            (dolist (mode (split-string \"${opt_enable_modes}\" \",\"))
-                              (funcall (intern mode)))))" "$@"
+read -r -d '' expr <<__ELISP__
+(progn
+  (require 'seq)
+  (require 'subr-x)
+  (setq user-emacs-directory
+        (if (string-empty-p "${opt_user_dir}")
+            (car (seq-filter
+                  #'file-exists-p
+                  (list (format "~/.emacs.d/%s/" emacs-version)
+                        (format "~/.emacs.d/%s.%s/" emacs-major-version emacs-minor-version)
+                        "~/.emacs.d/")))
+          "${opt_user_dir}"))
+  (setq package-user-dir
+        (if (string-empty-p "${opt_elpa_dir}")
+            (expand-file-name "elpa/" user-emacs-directory)
+          "${opt_elpa_dir}"))
+  (dolist (dir '(${opt_load_dirs[@]}))
+    (add-to-list 'load-path (expand-file-name dir)))
+  (package-initialize)
+  (unless (string-empty-p "${opt_load_pkgs}")
+    (dolist (pkg (split-string "${opt_load_pkgs}" ","))
+      (require (intern pkg))))
+  (unless (string-empty-p "${opt_enable_modes}")
+    (dolist (mode (split-string "${opt_enable_modes}" ","))
+      (funcall (intern mode)))))
+__ELISP__
+
+${opt_emacs_bin:-emacs} -Q --debug-init --eval "${expr}" "$@"
 
 # emacs-q.sh ends here
