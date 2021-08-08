@@ -97,8 +97,24 @@ read -r -d '' expr <<__ELISP__
     (add-to-list 'load-path (expand-file-name dir)))
   (package-initialize)
   (unless (string-empty-p "${opt_load_pkgs}")
-    (dolist (pkg (split-string "${opt_load_pkgs}" ","))
-      (require (intern pkg))))
+    (dolist (pkg (mapcar #'intern (split-string "${opt_load_pkgs}" ",")))
+      (condition-case err
+          ;; 1. first try
+          (require pkg)
+        (file-missing
+         (condition-case err
+             ;; 2. second try
+             (progn
+               (package-install pkg)
+               (require pkg))
+           (error
+            (if (string= (cadr err) (format "Package ‘%s-’ is unavailable" pkg))
+                ;; 3. final try
+                (progn
+                  (package-refresh-contents)
+                  (package-install pkg)
+                  (require pkg))
+              (error (cadr err)))))))))
   (unless (string-empty-p "${opt_enable_modes}")
     (dolist (mode (split-string "${opt_enable_modes}" ","))
       (funcall (intern mode)))))
