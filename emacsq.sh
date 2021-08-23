@@ -93,9 +93,9 @@ read -r -d '' expr <<__ELISP__
         (if (string-empty-p "${opt_elpa_dir}")
             (expand-file-name "elpa/" user-emacs-directory)
           "${opt_elpa_dir}"))
+  (package-initialize)
   (dolist (dir '(${opt_load_dirs[@]}))
     (add-to-list 'load-path (expand-file-name dir)))
-  (package-initialize)
   (unless (string-empty-p "${opt_load_pkgs}")
     (dolist (pkg (mapcar #'intern (split-string "${opt_load_pkgs}" ",")))
       (condition-case err
