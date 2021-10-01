@@ -30,6 +30,7 @@ Usage: ${0##*/} [SCRIPT-OPTIONS] [EMACS-OPTIONS-OR-FILENAME]
 Script options:
 
     --path, -p EMACS_BIN    Emacs executable path [default emacs]
+    --archives, -ar FILE    File to set ‘package-archives’ (default ~/.emacs.d/elpa.el)
     --user-dir, -ud DIR     Set ‘user-emacs-directory’, if not provide, choose from:
                                 - ~/.emacs.d/{EMACS-VERSION}/
                                 - ~/.emacs.d/{MAJOR-VERSION}.{MINOR-VERSION}/
@@ -62,11 +63,13 @@ opt_load_dirs=("\".\"")
 opt_load_pkgs=
 opt_enable_modes=
 opt_emacs_bin=$EMACS
+opt_archives=~/.emacs.d/elpa.el
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -h |--help) usage; exit 1 ;;
         -p |--path) shift; opt_emacs_bin="$1"; shift;;
+        -ar|--archives) shift; opt_archives="$1"; shift;;
         -ud|--user-dir) shift; opt_user_dir="$1"; shift;;
         -ed|--elpa-dir) shift; opt_elpa_dir="$1"; shift;;
         -L |--directory) shift; opt_load_dirs+=("\"$1\""); shift;;
@@ -93,6 +96,9 @@ read -r -d '' expr <<__ELISP__
         (if (string-empty-p "${opt_elpa_dir}")
             (expand-file-name "elpa/" user-emacs-directory)
           "${opt_elpa_dir}"))
+  (condition-case _
+      (load "${opt_archives}")
+    (file-missing))
   (package-initialize)
   (dolist (dir '(${opt_load_dirs[@]}))
     (add-to-list 'load-path (expand-file-name dir)))
