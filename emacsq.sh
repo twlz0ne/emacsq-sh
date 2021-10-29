@@ -39,7 +39,8 @@ Script options:
     --directory, -L DIR     prepend DIR to ‘load-path’ (can be set multiple times)
     --packages, -P PKGS     Load specified packages (separate with ",") 
     --modes, -M MODES       Emable specified modes (separate with ",")
-    --help, -h              Print help info and exit
+    --dry-run               Print what would be done instead of actually doing it.
+    --help, -h              Print help info.
 
 Any other Emacs options (e.g. -nw, --eval...) or filename must come after.  For
 more information execute ‘emacs --help’.
@@ -64,6 +65,7 @@ opt_load_pkgs=
 opt_enable_modes=
 opt_emacs_bin=$EMACS
 opt_archives=~/.emacs.d/elpa.el
+opt_dry_run=
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -75,6 +77,7 @@ while [[ $# -gt 0 ]]; do
         -L |--directory) shift; opt_load_dirs+=("\"$1\""); shift;;
         -P |--packages) shift; opt_load_pkgs="$1"; shift;;
         -M |--modes) shift; opt_enable_modes="$1"; shift;;
+        --dry-run) opt_dry_run=echo; shift;;
         -*) break;;
         *) echo "Unknown option: $1"; exit 1;;
     esac
@@ -126,6 +129,6 @@ read -r -d '' expr <<__ELISP__
       (funcall (intern mode)))))
 __ELISP__
 
-${opt_emacs_bin:-emacs} -Q --debug-init --eval "${expr}" "$@"
+${opt_dry_run} ${opt_emacs_bin:-emacs} -Q --debug-init --eval "${expr}" "$@"
 
 # emacs-q.sh ends here
