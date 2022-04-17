@@ -86,15 +86,20 @@ done
 read -r -d '' expr <<__ELISP__
 (progn
   (require 'seq)
+  (require 'pcase)
   (require 'subr-x)
   (setq user-emacs-directory
-        (if (string-empty-p "${opt_user_dir}")
+        (let ((dir "${opt_user_dir}"))
+          (cond
+           ((string-empty-p dir)
             (car (seq-filter
                   #'file-exists-p
                   (list (format "~/.emacs.d/%s/" emacs-version)
                         (format "~/.emacs.d/%s.%s/" emacs-major-version emacs-minor-version)
-                        "~/.emacs.d/")))
-          "${opt_user_dir}"))
+                        "~/.emacs.d/"))))
+           ((string= dir "<tmp>") (make-temp-file "emacsq--" 'tmpdir "/"))
+           (t dir))))
+  (message "==> user-emacs-directory: %s" user-emacs-directory)
   (setq package-user-dir
         (if (string-empty-p "${opt_elpa_dir}")
             (expand-file-name "elpa/" user-emacs-directory)
