@@ -20,8 +20,11 @@
 # The idea from https://github.com/emacs-helm/helm/blob/master/emacs-helm.sh
 # 
 
-## Change Log:
-#   0.1.0   Initial Version
+# Created: 2021-03-30
+# Version: 0.1.0
+# Last-Updated: 2022-10-28 08:51:22 +0800
+#           By: Gong Qijian
+#     Update #: 8
 
 function usage {
     cat >&1 <<EOF
@@ -35,6 +38,8 @@ Script options:
                                 - ~/.emacs.d/{EMACS-VERSION}/
                                 - ~/.emacs.d/{MAJOR-VERSION}.{MINOR-VERSION}/
                                 - ~/.emacs.d/
+                            In addtion, ‘<tmp>’ means to create a temporary directionary
+                            as the ‘user-emacs-directory’ to guarantee purity.
     --elpa-dir, -ed DIR     Set ‘package-user-dir’ (default {user-emacs-directory}/elpa)
     --directory, -L DIR     prepend DIR to ‘load-path’ (can be set multiple times)
     --packages, -P PKGS     Load specified packages (separate with ",") 

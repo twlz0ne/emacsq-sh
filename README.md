@@ -16,10 +16,13 @@ Script options:
                                 - ~/.emacs.d/{EMACS-VERSION}/
                                 - ~/.emacs.d/{MAJOR-VERSION}.{MINOR-VERSION}/
                                 - ~/.emacs.d/
+                            In addtion, ‘<tmp>’ means to create a temporary directionary
+                            as the ‘user-emacs-directory’ to guarantee purity.
     --elpa-dir, -ed DIR     Set ‘package-user-dir’ (default {user-emacs-directory}/elpa)
     --directory, -L DIR     prepend DIR to ‘load-path’ (can be set multiple times)
     --packages, -P PKGS     Load specified packages (separate with ",") 
     --modes, -M MODES       Emable specified modes (separate with ",")
+    --dry-run               Print what would be done instead of actually doing it.
     --help, -h              Print help info and exit
 
 Any other Emacs options (e.g. -nw, --eval...) or filename must come after.  For
